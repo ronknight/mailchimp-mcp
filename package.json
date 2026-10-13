@@ -1,0 +1,119 @@
+{
+  "name": "mailchimp-mcp",
+  "displayName": "MCP Server for Mailchimp",
+  "description": "Read-first Model Context Protocol server for the Mailchimp Marketing API: audiences, campaigns, reports and draft-only campaign creation. Never sends.",
+  "version": "0.1.0",
+  "publisher": "pinoyitsolution",
+  "license": "MIT",
+  "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#0b1a3c",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.101.0",
+    "node": ">=18.17"
+  },
+  "categories": [
+    "AI",
+    "Other"
+  ],
+  "keywords": [
+    "mcp",
+    "model context protocol",
+    "mailchimp",
+    "email marketing",
+    "copilot",
+    "agent"
+  ],
+  "main": "./dist/extension.js",
+  "bin": {
+    "mailchimp-mcp": "dist/server.js"
+  },
+  "contributes": {
+    "mcpServerDefinitionProviders": [
+      {
+        "id": "mailchimpMcp.servers",
+        "label": "Mailchimp"
+      }
+    ],
+    "commands": [
+      {
+        "command": "mailchimpMcp.configure",
+        "title": "Add or Edit Profile",
+        "category": "Mailchimp MCP"
+      },
+      {
+        "command": "mailchimpMcp.clearCredentials",
+        "title": "Clear Stored Credentials",
+        "category": "Mailchimp MCP"
+      }
+    ],
+    "configuration": {
+      "title": "Mailchimp MCP",
+      "properties": {
+        "mailchimpMcp.profiles": {
+          "type": "array",
+          "scope": "application",
+          "default": [],
+          "markdownDescription": "One MCP server is registered per profile (for example one per Mailchimp account). API keys are kept in VS Code Secret Storage, never in settings. Use **Mailchimp MCP: Add or Edit Profile** to create one.",
+          "items": {
+            "type": "object",
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9_-]{1,32}$",
+                "description": "Short profile name, e.g. main or test."
+              },
+              "serverPrefix": {
+                "type": "string",
+                "pattern": "^([a-z]{2}[0-9]+)?$",
+                "description": "Data center (e.g. us1). Leave empty to read it from the API key suffix."
+              },
+              "allowWrites": {
+                "type": "boolean",
+                "default": false,
+                "description": "Enable draft-campaign tools (create and edit drafts). Sending is never available."
+              },
+              "allowTestEmails": {
+                "type": "boolean",
+                "default": false,
+                "description": "Enable the tool that sends a campaign test email to the addresses you give it."
+              }
+            }
+          }
+        },
+        "mailchimpMcp.nodePath": {
+          "type": "string",
+          "scope": "machine",
+          "default": "",
+          "description": "Node.js executable used to run the server. Leave empty to use the runtime bundled with VS Code."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc -p . --noEmit",
+    "test": "tsc -p tsconfig.test.json && node --test out/test/",
+    "nda-check": "node scripts/nda-check.mjs --strict",
+    "vscode:prepublish": "npm run nda-check && npm run typecheck && node esbuild.mjs --production",
+    "package": "vsce package --no-dependencies --allow-missing-repository"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "@types/vscode": "~1.101.0",
+    "@vscode/vsce": "^3.7.0",
+    "esbuild": "^0.25.10",
+    "typescript": "~5.9.3"
+  }
+}
